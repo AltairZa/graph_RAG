@@ -2,29 +2,27 @@
 
 ## Overview
 
-This document describes the architecture of the **Graph RAG (Retrieval-Augmented Generation)** application that combines **OpenAI GPT** with **GraphDB knowledge graphs** for intelligent jaguar conservation queries. The application demonstrates how to build a conversational AI that can query structured data using SPARQL and provide natural language responses.
+This document describes the architecture of the **Graph RAG (Retrieval-Augmented Generation)** application that combines **OpenAI GPT** with **GraphDB knowledge graphs** for intelligent jaguar conservation queries. The application demonstrates how to build a conversational AI using **Microsoft Agent Framework DevUI** that can query structured data using SPARQL and provide natural language responses.
 
 ## Graph RAG High-Level Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Flask Web Application                    │
+│                Microsoft Agent Framework                    │
 │  ┌─────────────────────────────────────────────────────┐   │
-│  │              Single-File POC                        │   │
+│  │                    DevUI Server                    │   │
 │  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐ │   │
-│  │  │   Routes    │  │ Templates   │  │   Global    │ │   │
-│  │  │  - /chat    │  │  - index.html│  │   State     │ │   │
-│  │  │  - /clear   │  │  - Chat UI  │  │  - AGENT    │ │   │
-│  │  │  - /        │  │  - Error    │  │  - THREAD   │ │   │
-│  │  └─────────────┘  └─────────────┘  │  - HISTORY  │ │   │
-│  │                                    └─────────────┘ │   │
+│  │  │   Auto-     │  │ Interactive │  │   Built-in  │ │   │
+│  │  │   opening   │  │    Chat     │  │  Debugging  │ │   │
+│  │  │   Browser   │  │ Interface   │  │   Tools     │ │   │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘ │   │
 │  └─────────────────────────────────────────────────────┘   │
 └─────────────────────────┬───────────────────────────────────┘
                           │
 ┌─────────────────────────▼───────────────────────────────────┐
 │                Microsoft Agent Framework                    │
 │  ┌─────────────────────────────────────────────────────┐   │
-│  │            Jaguar Conservation Agent                 │   │
+│  │            Jaguar Query Agent                       │   │
 │  │  ┌─────────────────────────────────────────────┐   │   │
 │  │  │            System Prompt                    │   │   │
 │  │  │  - Graph RAG Instructions                   │   │   │
@@ -63,17 +61,15 @@ This document describes the architecture of the **Graph RAG (Retrieval-Augmented
 
 ## Graph RAG Component Descriptions
 
-### Flask Web Application (Single-File POC)
-- **Routes**: Simple Flask routes (`/`, `/chat`, `/clear`)
-- **Templates**: HTML template with chat interface
-- **Global State**: In-memory storage for single-user POC
-  - `app.config['AGENT']`: Single agent instance
-  - `app.config['THREAD']`: Single conversation thread
-  - `app.config['CHAT_HISTORY']`: UI display history
-  - `app.config['ERROR']`: Error display
+### Microsoft Agent Framework DevUI
+- **DevUI Server**: Built-in development web interface
+- **Auto-opening Browser**: Automatically launches at `http://localhost:8000`
+- **Interactive Chat**: Real-time conversation interface
+- **Built-in Debugging**: Visual inspection of agent behavior
+- **Zero Configuration**: No frontend code required
 
 ### Microsoft Agent Framework
-- **Jaguar Conservation Agent**: Graph RAG specialist agent
+- **Jaguar Query Agent**: Graph RAG specialist agent
 - **System Prompt**: Graph RAG instructions and SPARQL guidelines
 - **OpenAI Client**: GPT-4 integration with function calling
 - **Thread Management**: Conversation context preservation
@@ -92,41 +88,36 @@ This document describes the architecture of the **Graph RAG (Retrieval-Augmented
 
 ### User Query Processing
 
-1. **User Request**: User sends message via web interface
-2. **Flask Route**: `/chat` route receives POST request
-3. **Agent Retrieval**: Get singleton agent and thread instances
-4. **Graph RAG Processing**:
+1. **DevUI Launch**: `python3 main.py` starts DevUI server
+2. **User Interaction**: User types queries in DevUI interface
+3. **Agent Processing**:
    - **LLM Analysis**: OpenAI GPT analyzes natural language query
    - **SPARQL Generation**: AI generates appropriate SPARQL query
    - **Tool Call Detection**: Agent Framework detects need for GraphDB tool
-5. **Knowledge Graph Query**:
+4. **Knowledge Graph Query**:
    - **SPARQL Execution**: `query_jaguar_database` tool executes query
    - **Result Processing**: Raw SPARQL results processed and formatted
-6. **Response Generation**:
+5. **Response Generation**:
    - **LLM Interpretation**: OpenAI GPT interprets GraphDB results
    - **Natural Language Response**: Generates human-readable response
    - **Markdown Formatting**: Applies formatting with code blocks
-7. **State Update**:
-   - **Thread Persistence**: Agent Framework maintains conversation context
-   - **UI History**: Flask app stores display history
-   - **Response Delivery**: Return formatted response to user
+6. **DevUI Display**:
+   - **Response Delivery**: Shows formatted response in DevUI
+   - **Context Preservation**: Conversation history maintained automatically
 
 ## Graph RAG Design Patterns
 
-### 1. Singleton Pattern
-Single-user POC uses singleton pattern for global access:
+### 1. DevUI Pattern
+DevUI provides automatic state management:
 ```python
-def get_agent():
-    """Get or create the jaguar agent (singleton)"""
-    if app.config['AGENT'] is None:
-        app.config['AGENT'] = create_jaguar_agent()
-    return app.config['AGENT']
+# DevUI handles all state management automatically
+serve(entities=[query_agent], auto_open=True)
 ```
 
 ### 2. Agent Framework Pattern
 Microsoft Agent Framework handles conversation management:
 ```python
-# Agent Framework manages threads and context
+# Agent Framework manages threads and context automatically
 response = asyncio.run(agent.run(user_message, thread=thread, store=True))
 ```
 
@@ -140,19 +131,17 @@ tool_choice="auto"
 
 ## Graph RAG State Management
 
-### Simplified POC State
+### DevUI State Management
 ```python
-# Global Flask app configuration for single-user POC
-app.config['AGENT'] = None        # Single agent instance
-app.config['THREAD'] = None       # Single conversation thread  
-app.config['CHAT_HISTORY'] = []   # UI display history
-app.config['ERROR'] = None        # Error display
+# DevUI handles all state management automatically
+# No manual state configuration required
+serve(entities=[query_agent], auto_open=True)
 ```
 
 ### Thread Management
 - **Agent Framework**: Microsoft Agent Framework manages conversation context
 - **OpenAI Responses API**: Server-side thread persistence
-- **Flask App**: Simple UI state management
+- **DevUI Interface**: Built-in conversation history and state management
 
 ## Graph RAG Configuration
 
@@ -164,12 +153,12 @@ OPENAI_RESPONSES_MODEL_ID=gpt-4
 
 # GraphDB Configuration
 GRAPHDB_URL=http://localhost:7200
-GRAPHDB_REPOSITORY=jaguar_conservation
+GRAPHDB_REPOSITORY=your_repo_name
 ```
 
 ### Agent Settings
 ```python
-# Hardcoded in create_jaguar_agent() function
+# Hardcoded in create_jaguar_query_agent() function
 settings = OpenAISettings(
     api_key=os.getenv("OPENAI_API_KEY", ""),
     model_id=os.getenv("OPENAI_RESPONSES_MODEL_ID", "gpt-4")
@@ -192,22 +181,22 @@ settings = OpenAISettings(
 ## Graph RAG Scalability
 
 ### Current POC State
-- Single-file Flask application
-- In-memory state storage
+- Microsoft Agent Framework DevUI
+- Automatic state management
 - Single-user design
 - OpenAI API rate limits
 
 ### Future Enhancements
 1. **Multi-User Support**: Session-based user management
 2. **Distributed State**: Redis or database backend
-3. **Horizontal Scaling**: Multiple Flask instances
+3. **Horizontal Scaling**: Multiple agent instances
 4. **Query Caching**: Cache frequent SPARQL patterns
 5. **Async Processing**: Non-blocking GraphDB queries
 
 ## Graph RAG Monitoring
 
 ### Logging
-- Flask request/response logging
+- DevUI request/response logging
 - Agent Framework conversation logging
 - GraphDB query execution logging
 
@@ -219,29 +208,18 @@ settings = OpenAISettings(
 ## Graph RAG Testing
 
 ### Manual Testing
-1. **Web Interface**: Test queries through Flask UI
+1. **DevUI Interface**: Test queries through the DevUI
 2. **SPARQL Validation**: Verify generated queries in GraphDB
 3. **Response Quality**: Check natural language response accuracy
 
-### Example Test Queries
-```python
-# Test basic counting
-"How many jaguars are in the database?"
-
-# Test filtering
-"Show me all male jaguars"
-
-# Test relationships
-"Which jaguars were rescued and by which organization?"
-```
 
 ## Graph RAG Dependencies
 
 ### Core Dependencies
-- **Flask 3.0.0**: Web framework
-- **OpenAI 1.51.0**: GPT API client
-- **Microsoft Agent Framework**: Agent management
+- **Microsoft Agent Framework**: Agent management and DevUI
+- **OpenAI**: GPT API client
 - **Requests**: GraphDB HTTP communication
+- **python-dotenv**: Environment variable management
 
 ### Graph RAG Specific
 - **GraphDB**: RDF triple store
@@ -252,14 +230,15 @@ settings = OpenAISettings(
 
 ```
 graph_RAG/
-├── app.py                    # Single-file Flask application
-├── templates/
-│   └── index.html           # Chat interface template
+├── main.py                  # DevUI entry point
 ├── src/
-│   ├── agents/
-│   │   └── jaguar_agent.py  # Agent creation (deprecated)
-│   └── tools/
-│       └── query_jaguar_database.py  # GraphDB tool with inline logic
+│   └── agents/
+│       ├── jaguar_query_agent.py  # Agent creation with DevUI integration
+│       └── jaguar_tool.py         # GraphDB tool implementation
+├── data/
+│   ├── jaguar_ontology.ttl        # Basic jaguar ontology
+│   ├── jaguar_ontology_rich.ttl    # Extended ontology with more classes
+│   └── jaguars.ttl               # Jaguar instance data
 ├── docs/
 │   ├── agent_design.md      # Agent design documentation
 │   └── architecture.md      # Architecture documentation

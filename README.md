@@ -2,7 +2,7 @@
 
 A **Graph RAG (Retrieval-Augmented Generation)** chat application that combines **OpenAI GPT** with **knowledge graphs** stored in **GraphDB**. This application demonstrates how to build an intelligent assistant using **Microsoft Agent Framework** with structured data using SPARQL.
 
-**Version 2.0** - Single-file POC demonstrating Graph RAG capabilities with Agent Framework integration.
+**Version 2.0** - Simplified PoC using Microsoft Agent Framework DevUI for rapid development and testing.
 
 ## 🌟 Graph RAG Features
 
@@ -27,19 +27,22 @@ A **Graph RAG (Retrieval-Augmented Generation)** chat application that combines 
 - Threats, habitats, and locations
 - Rescue, rehabilitation, and release data
 
-### 🎨 **Simple Web Interface**
-- **Flask-based** web application
-- **Clean chat interface** with message history
-- **Error handling** and user feedback
-- **Form-based** interaction (no JavaScript complexity)
+### 🎨 **Developer-Friendly Interface**
+- **Microsoft Agent Framework DevUI** for rapid development
+- **Interactive chat interface** with real-time responses
+- **Built-in debugging** and conversation inspection
+- **Auto-opening browser** for immediate testing
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- **Python 3.8+** (Python 3.10+ recommended)
+Based on the [Microsoft Agent Framework requirements](https://learn.microsoft.com/en-us/agent-framework/overview/agent-framework-overview):
+
+- **Python 3.10+** (Required for Agent Framework)
+- **Microsoft Agent Framework** (Preview version)
 - **GraphDB** running on localhost:7200
-- **OpenAI API** access
+- **OpenAI API** access with GPT-4 support
 - **Git**
 
 ### 1. Clone the Repository
@@ -95,33 +98,36 @@ docker start graphdb-instance
 
 ```
 
-### 6. Load Jaguar Ontology
+### 6. Load Jaguar Data
 
 1. Access GraphDB Workbench at `http://localhost:7200`
-2. Create a new repository named `jaguar_conservation`
-3. Import the ontology file: `data/ontologies/jaguar_ontology.ttl`
+2. Create a new repository named `jaguars`
+3. Import the data files:
+   - `data/jaguar_ontology.ttl` (or `data/jaguar_ontology_rich.ttl`)
+   - `data/jaguars.ttl`
 
 ### 7. Run the Application
 
 ```bash
-# Start the single-file Flask application
-python3 app.py
+# Start the Microsoft Agent Framework DevUI
+python3 main.py
 ```
 
-Open your browser and navigate to `http://localhost:5000`
+The DevUI will automatically open in your browser at `http://localhost:8000`
 
 ## 📁 Project Structure
 
 ```
 graph_RAG/
-├── app.py                    # Single-file Flask application
-├── templates/
-│   └── index.html           # Chat interface template
+├── main.py                  # DevUI entry point
 ├── src/
-│   ├── agents/
-│   │   └── jaguar_agent.py  # Agent creation (deprecated)
-│   └── tools/
-│       └── query_jaguar_database.py  # GraphDB tool with inline logic
+│   └── agents/
+│       ├── jaguar_query_agent.py  # Agent creation with DevUI integration
+│       └── jaguar_tool.py         # GraphDB tool implementation
+├── data/
+│   ├── jaguar_ontology.ttl        # Basic jaguar ontology
+│   ├── jaguar_ontology_rich.ttl    # Extended ontology with more classes
+│   └── jaguars.ttl               # Jaguar instance data
 ├── docs/
 │   ├── agent_design.md      # Agent design documentation
 │   └── architecture.md      # Architecture documentation
@@ -133,83 +139,96 @@ graph_RAG/
 ## 🛠️ Technology Stack
 
 ### Backend
-- **Flask 3.0.0** - Lightweight web framework
-- **Pydantic 2.5.0** - Data validation using Python type annotations
-- **Azure OpenAI 1.51.0** - GPT API client
+- **Microsoft Agent Framework** (Preview) - AI agent orchestration
+- **OpenAI GPT-4** - Language model for conversation and SPARQL generation
 - **Requests** - HTTP library for GraphDB communication
 - **python-dotenv** - Environment variable management
 
 ### Frontend
-- **Bootstrap 5** - Responsive UI framework
-- **Marked.js** - Markdown parsing and rendering
-- **Prism.js** - Syntax highlighting for code blocks
-- **Vanilla JavaScript** - No heavy frameworks, pure performance
+- **Microsoft Agent Framework DevUI** - Built-in development interface
+- **Auto-opening browser** - Seamless development experience
+- **Real-time chat** - Interactive conversation interface
 
 ### Data Layer
-- **Ontotext GraphDB 10.7.3** - RDF triple store
+- **Ontotext GraphDB 10.7.0** - RDF triple store
 - **SPARQL** - Query language for RDF data
-- **RDF/Turtle** - Ontology definition format
+- **RDF/Turtle** - Ontology and data definition format
 
 ### Architecture
-- **Microsoft Agent Framework patterns** - Modular agent architecture
-- **Layered architecture** - Clear separation of concerns
-- **Middleware pattern** - Cross-cutting concerns
-- **Registry pattern** - Tool discovery and management
+- **Microsoft Agent Framework** - Unified agent development platform
+- **Graph RAG Pattern** - Retrieval-Augmented Generation with knowledge graphs
+- **Tool Integration** - SPARQL query execution via agent tools
+
+## 🖥️ Microsoft Agent Framework DevUI
+
+The **DevUI** (Development UI) is a built-in web interface provided by Microsoft Agent Framework for rapid development and testing of AI agents. It offers:
+
+### Key Features
+- **Interactive Chat Interface**: Real-time conversation with your AI agent
+- **Auto-opening Browser**: Automatically launches at `http://localhost:8000`
+- **Built-in Debugging**: Inspect agent responses, tool calls, and conversation flow
+- **No Frontend Code Required**: Zero configuration web interface
+- **Agent Inspection**: View agent configuration, tools, and capabilities
+- **Conversation History**: Full chat history with context preservation
+
+### DevUI Benefits
+- **Rapid Prototyping**: Test agents without building custom UIs
+- **Development Efficiency**: Focus on agent logic, not frontend development
+- **Built-in Debugging**: Visual inspection of agent behavior
+- **Production Ready**: Can be used for demos and testing
 
 ## 💡 How It Works
 
-1. **User Interaction** - User asks a question about jaguars
-2. **Agent Processing** - Jaguar Agent analyzes the question
-3. **Middleware** - Logging and telemetry middleware invoked
-4. **Tool Selection** - Agent decides to use GraphDB tool
+1. **DevUI Launch** - `python3 main.py` starts the DevUI server
+2. **User Interaction** - User asks a question about jaguars in the DevUI
+3. **Agent Processing** - Jaguar Query Agent analyzes the question
+4. **Tool Selection** - Agent decides to use GraphDB tool for data retrieval
 5. **SPARQL Generation** - GPT generates a SPARQL query based on the ontology
-6. **Query Execution** - Query executes against GraphDB
+6. **Query Execution** - Query executes against GraphDB via the tool
 7. **Data Processing** - Raw JSON results returned to agent
 8. **Natural Language Response** - Agent interprets and formats the response
-9. **State Management** - Conversation history saved in thread
-10. **Markdown Rendering** - Frontend renders with formatting and highlighting
+9. **DevUI Display** - Response shown in the interactive chat interface
+10. **Context Preservation** - Conversation history maintained for follow-up questions
 
-## 📊 Example Queries
-
-- "How many jaguars are in the database?"
-- "Tell me about female jaguars that were orphaned"
-- "Which conservation organizations are working in Brazil?"
-- "What are the main threats to jaguar populations?"
-- "Show me jaguars that were rescued and later released"
 
 ## 🧪 Testing
 
-### Run All Tests
+### Manual Testing with DevUI
+
+The easiest way to test the Graph RAG functionality is through the DevUI:
 
 ```bash
-# Using the script (Unix/Linux/Mac)
-./scripts/run_tests.sh
+# Start the DevUI
+python3 main.py
 
-# Windows
-python -m pytest tests/
-
-# With coverage
-pytest --cov=src --cov-report=html
+# Test queries in the browser interface at http://localhost:8000
 ```
 
-### Run Specific Tests
+### Example Test Queries
 
-```bash
-# Unit tests only
-pytest tests/unit/
+Try these queries in the DevUI to test different aspects:
 
-# Integration tests only
-pytest tests/integration/
+**Basic Counting:**
+- "How many jaguars are in the database?"
+- "Count all female jaguars"
 
-# Specific test file
-pytest tests/unit/test_graphdb_tool.py
-```
+**Data Filtering:**
+- "Show me all male jaguars"
+- "Find jaguars that were killed"
+
+**Relationship Queries:**
+- "Which jaguars were rescued and by which organization?"
+- "Show me conservation efforts by location"
+
+**Complex Queries:**
+- "Find jaguars by location and their monitoring dates"
+- "Which organizations are conducting conservation efforts?"
 
 ## 📚 Documentation
 
 - **[Architecture](docs/architecture.md)** - System architecture and design
 - **[Agent Design](docs/agent_design.md)** - Jaguar Agent design and usage
-- **[Migration Notes](docs/migration_notes.md)** - Migration from v1.0 to v2.0
+
 
 ## 🔒 Security
 
@@ -218,80 +237,5 @@ pytest tests/unit/test_graphdb_tool.py
 - `.gitignore` configured to protect credentials
 - No hardcoded secrets in source code
 - Session-based access control
-- Input validation and sanitization
 
-## 🚀 Deployment
 
-### Development
-```bash
-python scripts/start_app.py
-```
-
-### Production
-Consider using:
-- **Gunicorn** or **uWSGI** as WSGI server
-- **Nginx** as reverse proxy
-- **Redis** for session storage
-- **Docker Compose** for containerization
-
-Example with Gunicorn:
-```bash
-gunicorn -w 4 -b 0.0.0.0:5000 src.web.app:app
-```
-
-## 🔮 Future Enhancements
-
-### Planned Features
-- [ ] **Full Microsoft Agent Framework integration** (when production-ready)
-- [ ] **Multi-agent workflows** for complex queries
-- [ ] **Streaming responses** for real-time feedback
-- [ ] **Checkpointing** for long-running conversations
-- [ ] **Human-in-the-loop** patterns
-- [ ] **Additional tools** (web search, document analysis, visualization)
-- [ ] **Authentication** and user management
-- [ ] **API documentation** with OpenAPI/Swagger
-
-### Scalability
-- [ ] **Distributed sessions** with Redis
-- [ ] **Horizontal scaling** with load balancing
-- [ ] **Async processing** with Celery
-- [ ] **Caching layer** for frequent queries
-- [ ] **Message queue** for async operations
-
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
-
-## 📝 License
-
-This project is open source and available under the MIT License.
-
-## 👤 Author
-
-**Niklas** - [GitHub](https://github.com/nemegrod)
-
-## 🙏 Acknowledgments
-
-- **Microsoft Agent Framework** - Architecture patterns and inspiration
-- **Ontotext GraphDB** - Powerful RDF triple store
-- **Azure OpenAI** - Advanced language models
-- **Flask** - Lightweight web framework
-
-## 📞 Support
-
-For issues, questions, or suggestions:
-- Open an issue on GitHub
-- Check the documentation in `/docs`
-- Review the migration notes for v2.0 changes
-
----
-
-**Built with ❤️ using Graph RAG, Azure OpenAI, GraphDB, and Microsoft Agent Framework patterns**
-
-**Version 2.0** - Agent Framework Architecture  
-**Previous Version**: v1.0 - Simple flat structure

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Jaguar Conservation Agent is a **Graph RAG (Retrieval-Augmented Generation)** AI agent that combines **OpenAI GPT** with **GraphDB knowledge graphs** to provide intelligent responses about jaguar conservation. This agent demonstrates how to build a conversational AI that can query structured data using SPARQL and provide natural language responses.
+The Jaguar Conservation Agent is a **Graph RAG (Retrieval-Augmented Generation)** AI agent that combines **OpenAI GPT** with **GraphDB knowledge graphs** to provide intelligent responses about jaguar conservation. This agent demonstrates how to build a conversational AI using **Microsoft Agent Framework DevUI** that can query structured data using SPARQL and provide natural language responses.
 
 ## Graph RAG Capabilities
 
@@ -14,10 +14,10 @@ The Jaguar Conservation Agent is a **Graph RAG (Retrieval-Augmented Generation)*
 - **Context-Aware Responses**: Maintains conversation context across queries
 
 ### Agent Characteristics
-- **Name**: JaguarConservationAgent
+- **Name**: JaguarQueryAgent
 - **Role**: Graph RAG specialist for jaguar conservation
 - **Domain**: Jaguar population, conservation, habitats, threats
-- **Architecture**: Microsoft Agent Framework with OpenAI integration
+- **Architecture**: Microsoft Agent Framework with DevUI integration
 
 ### Capabilities
 1. **SPARQL Query Generation**: Convert natural language to SPARQL queries
@@ -28,23 +28,24 @@ The Jaguar Conservation Agent is a **Graph RAG (Retrieval-Augmented Generation)*
 
 ## Architecture
 
-### Simplified POC Architecture
+### Simplified PoC Architecture with DevUI
 
 ```
 ┌─────────────────────────────────────────┐
-│           Flask Web App                 │
+│        Microsoft Agent Framework         │
 │  ┌─────────────────────────────────┐    │
-│  │        Chat Interface           │    │
-│  │  - HTML Form POST              │    │
-│  │  - Chat History Display        │    │
-│  │  - Error Handling              │    │
+│  │           DevUI Server           │    │
+│  │  - Auto-opening Browser          │    │
+│  │  - Interactive Chat Interface    │    │
+│  │  - Built-in Debugging           │    │
+│  │  - Real-time Responses          │    │
 │  └─────────────────────────────────┘    │
 └─────────────────┬───────────────────────┘
                   │
 ┌─────────────────▼───────────────────────┐
 │        Agent Framework                  │
 │  ┌─────────────────────────────────┐    │
-│  │    Jaguar Conservation Agent    │    │
+│  │    Jaguar Query Agent           │    │
 │  │  ┌─────────────────────────┐    │    │
 │  │  │    System Prompt        │    │    │
 │  │  │  - Graph RAG Context    │    │    │
@@ -71,9 +72,9 @@ The Jaguar Conservation Agent is a **Graph RAG (Retrieval-Augmented Generation)*
 ┌─────────────────▼───────────────────────┐
 │           External Systems              │
 │  ┌─────────────────┐  ┌─────────────┐  │
-│  │   OpenAI API    │  │  GraphDB    │  │
-│  │   - GPT-4       │  │  - RDF Store│  │
-│  │   - Responses   │  │  - SPARQL   │  │
+│  │   OpenAI API    │  │  GraphDB     │  │
+│  │   - GPT-4       │  │  - RDF Store │  │
+│  │   - Responses   │  │  - SPARQL    │  │
 │  └─────────────────┘  └─────────────┘  │
 └─────────────────────────────────────────┘
 ```
@@ -149,21 +150,20 @@ SELECT ?effort ?org ?description WHERE {
 
 ## Graph RAG Processing Flow
 
-### 1. User Query Reception
+### 1. DevUI Launch
 ```python
-# Flask route receives user message
-user_message = request.form.get('message', '').strip()
+# main.py starts DevUI server
+from agent_framework.devui import serve
+from src.agents.jaguar_query_agent import create_jaguar_query_agent
+
+query_agent = create_jaguar_query_agent()
+serve(entities=[query_agent], auto_open=True)
 ```
 
-### 2. Agent Framework Processing
-```python
-# Get agent and thread (singleton pattern)
-agent = get_agent()
-thread = get_thread()
-
-# Run agent with conversation context
-response = asyncio.run(agent.run(user_message, thread=thread, store=True))
-```
+### 2. User Interaction via DevUI
+- **Auto-opening Browser**: DevUI launches at `http://localhost:8000`
+- **Interactive Chat**: User types queries in the DevUI interface
+- **Real-time Responses**: Immediate feedback and conversation flow
 
 ### 3. Graph RAG Query Generation
 - **LLM Analysis**: OpenAI GPT analyzes the user's natural language query
@@ -182,29 +182,27 @@ response = asyncio.run(agent.run(user_message, thread=thread, store=True))
 
 ### 6. Context Preservation
 - **Thread Management**: Agent Framework maintains conversation context
-- **Chat History**: Flask app stores UI display history
+- **DevUI History**: Built-in conversation history in DevUI interface
 - **State Persistence**: Conversation state preserved across requests
 
 ## Graph RAG State Management
 
-### Simplified POC State
+### DevUI State Management
 ```python
-# Global Flask app configuration
-app.config['AGENT'] = None        # Single agent instance
-app.config['THREAD'] = None       # Single conversation thread
-app.config['CHAT_HISTORY'] = []   # UI display history
-app.config['ERROR'] = None        # Error display
+# DevUI handles all state management automatically
+# No manual state configuration required
+serve(entities=[query_agent], auto_open=True)
 ```
 
 ### Thread Management
-- **Agent Framework Threads**: Microsoft Agent Framework manages conversation context
+- **Agent Framework**: Microsoft Agent Framework manages conversation context
 - **OpenAI Responses API**: Server-side thread persistence
-- **Flask Session**: Simple UI state management for single-user POC
+- **DevUI Interface**: Built-in conversation history and state management
 
 ### Chat History
 - **Agent Framework**: Maintains conversation context for LLM
-- **Flask App**: Stores display history for UI rendering
-- **Persistence**: Thread state preserved across requests
+- **DevUI**: Built-in conversation history display
+- **Persistence**: Thread state preserved across requests automatically
 
 ## Graph RAG Configuration
 
@@ -221,7 +219,7 @@ GRAPHDB_REPOSITORY=jaguar_conservation
 
 ### Agent Settings
 ```python
-# Hardcoded in create_jaguar_agent()
+# Hardcoded in create_jaguar_query_agent()
 settings = OpenAISettings(
     api_key=os.getenv("OPENAI_API_KEY", ""),
     model_id=os.getenv("OPENAI_RESPONSES_MODEL_ID", "gpt-4")
@@ -247,25 +245,23 @@ The agent applies Graph RAG-specific formatting:
 
 ### Error Response Format
 ```python
-# Simple error display in Flask
-app.config['ERROR'] = str(e)
-return redirect(url_for('index'))
+# DevUI handles error display automatically
+# Errors are shown in the DevUI interface
+# No manual error handling required
 ```
 
 ## Graph RAG Usage Examples
 
 ### Running the Application
 ```bash
-# Start the Flask application
-cd /home/niklas/workspace/graph_RAG
-python3 app.py
+# Start the DevUI application
+python3 main.py
 
-# Access the web interface
-open http://localhost:5000
+# DevUI automatically opens at http://localhost:8000
 ```
 
 ### Example Queries
-Try these Graph RAG queries in the web interface:
+Try these Graph RAG queries in the DevUI interface:
 
 **Basic Queries:**
 - "How many jaguars are in the database?"
@@ -280,10 +276,10 @@ Try these Graph RAG queries in the web interface:
 ### Programmatic Usage
 ```python
 # Direct agent usage (if needed)
-from src.agents.jaguar_agent import create_jaguar_agent
+from src.agents.jaguar_query_agent import create_jaguar_query_agent
 import asyncio
 
-agent = create_jaguar_agent()
+agent = create_jaguar_query_agent()
 thread = agent.get_new_thread()
 
 # Run a query
@@ -318,7 +314,7 @@ print(response.text)
 ## Graph RAG Testing
 
 ### Manual Testing
-1. **Web Interface**: Test queries through the Flask UI
+1. **DevUI Interface**: Test queries through the DevUI
 2. **SPARQL Validation**: Verify generated queries in GraphDB
 3. **Response Quality**: Check natural language response accuracy
 
