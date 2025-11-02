@@ -1,11 +1,4 @@
-"""
-DEPRECATED: Jaguar Conservation Agent - Using Microsoft Agent Framework
 
-This file has been deprecated. The agent code has been moved directly into app.py
-for the single-user POC. This file is kept for reference only.
-
-The agent creation logic is now in app.py as create_jaguar_agent().
-"""
 import os
 from dotenv import load_dotenv
 from agent_framework.openai import OpenAIResponsesClient, OpenAISettings
